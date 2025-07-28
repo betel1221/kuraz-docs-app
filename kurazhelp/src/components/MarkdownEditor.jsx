@@ -1,7 +1,7 @@
 // src/components/MarkdownEditor.jsx
 import React from 'react';
 
-function MarkdownEditor({ content, onContentChange, isDarkMode }) { // NEW: isDarkMode prop
+function MarkdownEditor({ content, onContentChange, isDarkMode }) {
   const handleChange = (event) => {
     onContentChange(event.target.value);
   };
@@ -20,4 +20,4 @@ function MarkdownEditor({ content, onContentChange, isDarkMode }) { // NEW: isDa
   );
 }
 
-export default MarkdownEditor;
+export default MarkdownEditor;  

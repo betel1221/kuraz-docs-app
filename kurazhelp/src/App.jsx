@@ -444,6 +444,7 @@ const handleAIMessage = async (message, mode = 'chat') => {
             onContentChange={handleContentChange}
             isDarkMode={isDarkMode}
           />
+          
           <PreviewPane
             content={activeDocument.content}
             isDarkMode={isDarkMode}

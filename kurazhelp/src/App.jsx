@@ -1,9 +1,11 @@
+// src/App.jsx
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import MarkdownEditor from './components/MarkdownEditor';
 import PreviewPane from './components/PreviewPane';
 import ChatPanel from './components/ChatPanel';
 import AuthForm from './components/AuthForm';
+import WelcomePage from './components/WelcomePage'; // Import the new WelcomePage
 import SettingsMenu from './components/SettingsMenu';
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -35,6 +37,7 @@ function App() {
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [isSettingsMenuOpen, setIsSettingsMenu] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
+  const [authMode, setAuthMode] = useState(null); // New state to track if we're in 'login' or 'signup' mode
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('kurazTheme');
@@ -295,9 +298,15 @@ function App() {
     );
   }
 
-  if (!currentUser) {
-    return <AuthForm />;
+  // --- NEW LOGIC FOR WELCOME PAGE ---
+  if (!currentUser && !authMode) {
+    return <WelcomePage onStart={setAuthMode} />;
   }
+
+  if (!currentUser && authMode) {
+    return <AuthForm initialMode={authMode} />;
+  }
+  // --- END OF NEW LOGIC ---
 
   if (loadingDocs) {
     return (
@@ -342,8 +351,8 @@ function App() {
         fixed top-0 left-0 h-full z-50
         lg:static lg:h-auto lg:z-auto
         transform transition-transform duration-300 ease-in-out
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        lg:w-64 w-64
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0 lg:w-64 w-64
       `}>
         <Sidebar
           documents={documents}
@@ -364,7 +373,7 @@ function App() {
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className={`p-3 flex items-center justify-between border-b ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-200 border-gray-300'}`}>
-          <div className="flex items-center text-sm">
+          <div className="flex items-center text-sm min-w-0">
             <button
               onClick={toggleSidebar}
               className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 lg:hidden ${isDarkMode ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-300'}`}
@@ -376,15 +385,15 @@ function App() {
             </button>
 
             <div className="hidden md:flex items-center text-sm">
-                <span className={`ml-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Words: {activeDocument.wordCount}</span>
-                <span className={`ml-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Last Edited: {new Date(activeDocument.lastEdited).toLocaleTimeString()}</span>
+              <span className={`ml-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Words: {activeDocument.wordCount}</span>
+              <span className={`ml-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Last Edited: {new Date(activeDocument.lastEdited).toLocaleTimeString()}</span>
             </div>
             
             <h1 className={`text-xl font-bold ml-4 truncate max-w-xs ${isDarkMode ? 'text-gray-100' : 'text-gray-800'} hidden md:block`}>
               {activeDocument.title}
             </h1>
             
-            <h1 className={`text-lg font-bold ml-4 truncate max-w-xs ${isDarkMode ? 'text-gray-100' : 'text-gray-800'} block md:hidden`}>
+            <h1 className={`flex-1 min-w-0 text-lg font-bold ml-4 truncate ${isDarkMode ? 'text-gray-100' : 'text-gray-800'} block md:hidden`}>
               {activeDocument.title}
             </h1>
           </div>
@@ -445,7 +454,7 @@ function App() {
           </div>
         </div>
 
-        <div className="flex flex-1 overflow-hidden">
+        <div className={`flex flex-1 overflow-hidden ${isChatPanelOpen ? 'lg:flex' : 'flex'}`}>
           <div className={`${isMobilePreview ? 'hidden md:flex flex-1' : 'flex-1'} flex`}>
             <MarkdownEditor
               content={activeDocument.content}

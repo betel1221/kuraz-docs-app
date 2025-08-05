@@ -1,8 +1,7 @@
-// src/components/ChatPanel.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-function ChatPanel({ messages, onSendMessage, isDarkMode, isAILoading }) {
+function ChatPanel({ messages, onSendMessage, isDarkMode, isAILoading, onClose }) {
   const [inputValue, setInputValue] = useState('');
   const [aiMode, setAiMode] = useState('chat');
   const messagesEndRef = useRef(null);
@@ -49,10 +48,23 @@ function ChatPanel({ messages, onSendMessage, isDarkMode, isAILoading }) {
   };
 
   return (
-    <div className={`w-80 p-4 flex flex-col min-h-screen border-l
+    <div className={`p-4 flex flex-col min-h-screen border-l transition-all duration-300 ease-in-out
       ${isDarkMode ? 'bg-gray-800 text-gray-200 border-gray-700' : 'bg-gray-200 text-gray-800 border-gray-300'}
+      w-full md:w-96 lg:w-80
     `}>
-      <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>{getModeTitle()}</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>{getModeTitle()}</h2>
+        
+        <button
+          onClick={onClose}
+          className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 lg:hidden ${isDarkMode ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-300'}`}
+          title="Close AI Chat"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
       <div className="flex-grow overflow-y-auto custom-scrollbar pr-2 mb-4">
         {messages.length === 0 && !isAILoading ? (
@@ -147,7 +159,7 @@ function ChatPanel({ messages, onSendMessage, isDarkMode, isAILoading }) {
         </button>
       </div>
 
-      <div className="flex justify-around text-sm gap-1 flex-wrap">
+      <div className="flex flex-wrap justify-around text-sm gap-1">
         <button
           onClick={() => setAiMode('chat')}
           className={`px-2 py-1 rounded flex-1 min-w-[70px] ${aiMode === 'chat'
